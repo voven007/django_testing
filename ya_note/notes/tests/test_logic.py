@@ -39,7 +39,7 @@ class TestNoteCreation(TestCase):
         login_url = reverse('users:login')
         expected_url = f'{login_url}?next={self.ADD_NOTE}'
         assertRedirects(response, expected_url)
-        assert Note.objects.count() == 0
+        self.assertEqual(Note.objects.count(), 0)
 
     def test_not_unique_slug(self):
         self.auth_author.post(self.ADD_NOTE, data=self.form_data)
@@ -50,7 +50,7 @@ class TestNoteCreation(TestCase):
             field='slug',
             errors=(self.form_data['slug'] + WARNING)
         )
-        assert Note.objects.count() == 1
+        self.assertEqual(Note.objects.count(), 1)
 
     def test_empty_slug(self):
         self.form_data.pop('slug')
@@ -104,9 +104,9 @@ class TestNoteEditDelete(TestCase):
     def test_author_can_delete_note(self):
         response = self.auth_author.post(self.url_delete)
         assertRedirects(response, reverse('notes:success'))
-        assert Note.objects.count() == 0
+        self.assertEqual(Note.objects.count(), 0)
 
     def test_other_user_cant_delete_note(self):
         response = self.auth_reader.post(self.url_delete)
         assert response.status_code == HTTPStatus.NOT_FOUND
-        assert Note.objects.count() == 1
+        self.assertEqual(Note.objects.count(), 1)
